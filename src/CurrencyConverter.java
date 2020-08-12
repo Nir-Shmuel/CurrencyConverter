@@ -3,13 +3,13 @@ import java.util.Map;
 
 public class CurrencyConverter<T extends Currency, V extends Currency> implements Converter<T, V> {
     private ConvertFunction<T, Double, Double> convertFunction;
-    private RatioCalculator<Currency, Currency, Double> ratioCalculator;
-    private Map<String, Double> rates;
+    private RatioCalculator<T, V, Double> ratioCalculator;
+    private Map<String, Double> ratesCache;
 
-    public CurrencyConverter() {
-        convertFunction = new CurrencyConvertFunction<>();
-        ratioCalculator = new ExchangeRateCalculator<>();
-        rates = new HashMap<>();
+    public CurrencyConverter(ConvertFunction<T, Double, Double> convertFunction, RatioCalculator<T, V, Double> ratioCalculator) {
+        this.convertFunction = convertFunction;
+        this.ratioCalculator = ratioCalculator;
+        ratesCache = new HashMap<>();
     }
 
     @Override
@@ -19,11 +19,11 @@ public class CurrencyConverter<T extends Currency, V extends Currency> implement
         }
         Double rate;
         String key = String.format("%s%s", base.getId(), dest.getId());
-        if (rates.containsKey(key)) {
-            rate = rates.get(key);
+        if (ratesCache.containsKey(key)) {
+            rate = ratesCache.get(key);
         } else {
             rate = ratioCalculator.calculateRatio(base, dest);
-            rates.put(key, rate);
+            ratesCache.put(key, rate);
         }
         Double convertedValue = convertFunction.apply(base, rate);
         dest.setValue(convertedValue);

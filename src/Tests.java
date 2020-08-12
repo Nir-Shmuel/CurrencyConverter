@@ -40,7 +40,7 @@ public class Tests {
 
     @Test
     public void testCurrencyConverter() {
-        Converter<Currency, Currency> converter = new CurrencyConverter<>();
+        Converter<Currency, Currency> converter = new CurrencyConverter<>(new CurrencyConvertFunction<>(),new ExchangeRateCalculator<>());
         try {
             converter.convert(new Currency("USD"), null);
         } catch (Exception e) {

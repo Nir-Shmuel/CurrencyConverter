@@ -8,9 +8,13 @@ public class Main {
         try (Scanner scanner = new Scanner(new FileInputStream(srcFile))) {
             String base = scanner.nextLine();
             String dest = scanner.nextLine();
+
             Currency baseCurrency = new Currency(base);
             Currency destCurrency = new Currency(dest);
-            Converter<Currency, Currency> converter = new CurrencyConverter<>();
+
+            ConvertFunction<Currency, Double, Double> convertFunction = new CurrencyConvertFunction<>();
+            RatioCalculator<Currency, Currency, Double> ratioCalculator = new ExchangeRateCalculator<>();
+            Converter<Currency, Currency> converter = new CurrencyConverter<>(convertFunction, ratioCalculator);
 
             while (scanner.hasNextLine()) {
                 Double baseValue = Double.parseDouble(scanner.nextLine());
