@@ -1,55 +1,53 @@
 import org.junit.Test;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class Tests {
 
     @Test
-    public void testCurrency() {
-        Currency c1 = new Currency("USD");
-        Currency c2 = new Currency("USD");
-        Currency c3 = new Currency("ILS");
-        c1.setValue(2.5);
-        assertEquals(2.5, c1.getValue(), 0);
-        assertNotEquals(c2.getValue(), c1.getValue());
-        assertEquals(c1, c2);
-        assertNotEquals(c2, c3);
-    }
-
-    @Test
     public void testRatioCalculator() {
-        RatioCalculator<Currency, Currency, Double> ratioCalculator = new ExchangeRateCalculator<>();
+        RatioCalculator<String, Double> ratioCalculator = (base, dest) -> {
+            if (base == null || dest == null)
+                throw new NullInputException();
+            return 3.5;
+        };
         try {
-            ratioCalculator.calculateRatio(new Currency("USD"), null);
+            ratioCalculator.calculateRatio("USD", null);
         } catch (Exception e) {
             assertEquals("Can't handle null currency", e.getMessage());
         }
         try {
-            Double ratio = ratioCalculator.calculateRatio(new Currency("USD"), new Currency("ILS"));
-            assertNotEquals(null, ratio);
+            Double ratio = ratioCalculator.calculateRatio("USD", "ILS");
+            assertEquals(3.5, ratio, 0);
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        try {
-            ratioCalculator.calculateRatio(new Currency("USD"), new Currency("AAA"));
-        } catch (Exception e) {
-            assertEquals("Failed to find currency id: AAA",e.getMessage());
         }
 
     }
 
     @Test
     public void testCurrencyConverter() {
-        Converter<Currency, Currency> converter = new CurrencyConverter<>(new CurrencyConvertFunction<>(),new ExchangeRateCalculator<>());
+        ConvertFunction<Double, Double> function = new CurrencyConvertFunction();
+        RatioCalculator<String, Double> calculator = (base, dest) -> {
+            if (base == null || dest == null)
+                throw new NullInputException();
+            return 3.5;
+        };
+        Converter<String, Double> converter = new CurrencyConverter(function, calculator);
         try {
-            converter.convert(new Currency("USD"), null);
+            converter.convert("USD", null, null);
         } catch (Exception e) {
             assertEquals("Can't handle null currency", e.getMessage());
         }
         try {
-            converter.convert(new Currency("UDS"), new Currency("ILS"));
+            List<Double> values = new LinkedList<>();
+            values.add(1.);
+            assertEquals(3.5, converter.convert("UDS", "ILS", values).get(0), 0);
         } catch (Exception e) {
-            assertEquals("Failed to find currency id: ILS", e.getMessage());
+            e.printStackTrace();
         }
     }
 }

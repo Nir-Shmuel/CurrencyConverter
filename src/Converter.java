@@ -1,3 +1,5 @@
+import java.util.List;
+
 public interface Converter<T, V> {
-    V convert(T base, V dest) throws Exception;
+    List<V> convert(T base, T dest, List<V> values) throws Exception;
 }

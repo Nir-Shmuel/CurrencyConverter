@@ -1,6 +1,10 @@
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -9,24 +13,18 @@ public class Main {
             String base = scanner.nextLine();
             String dest = scanner.nextLine();
 
-            Currency baseCurrency = new Currency(base);
-            Currency destCurrency = new Currency(dest);
+            ConvertFunction<Double, Double> convertFunction = new CurrencyConvertFunction();
+            RatioCalculator<String, Double> ratioCalculator = new ExchangeRateCalculator();
+            Converter<String, Double> converter = new CurrencyConverter(convertFunction, ratioCalculator);
 
-            ConvertFunction<Currency, Double, Double> convertFunction = new CurrencyConvertFunction<>();
-            RatioCalculator<Currency, Currency, Double> ratioCalculator = new ExchangeRateCalculator<>();
-            Converter<Currency, Currency> converter = new CurrencyConverter<>(convertFunction, ratioCalculator);
-
-            while (scanner.hasNextLine()) {
-                Double baseValue = Double.parseDouble(scanner.nextLine());
-                baseCurrency.setValue(baseValue);
-                try {
-                    converter.convert(baseCurrency, destCurrency);
-                    System.out.println(destCurrency.getValue());
-                } catch (Exception e) {
-                    System.out.println(String.format("Failed to convert %s to %s. Please try again later.", base, dest));
-                    System.exit(-1);
-                }
+            List<Double> values = Files.lines(Paths.get(srcFile)).skip(2).map(Double::parseDouble).collect(Collectors.toList());
+            try {
+                converter.convert(base, dest, values).forEach(System.out::println);
+            } catch (Exception e) {
+                System.out.println(String.format("Failed to convert %s to %s. Please try again later.", base, dest));
+                System.exit(-1);
             }
+
 
         } catch (IOException e) {
             System.out.println("Invalid input.");

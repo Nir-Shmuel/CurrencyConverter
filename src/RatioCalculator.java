@@ -1,3 +1,3 @@
-public interface RatioCalculator<T, V, R> {
-    R calculateRatio(T base, V dest) throws Exception;
+public interface RatioCalculator<T, R> {
+    R calculateRatio(T base, T dest) throws Exception;
 }
